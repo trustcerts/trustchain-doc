@@ -1,0 +1,107 @@
+# Consensus protocol
+## Advance information
+There are two different roles for the nodes in the consensus - validator and proposer. There is one proposer each round, 
+and the rest of the nodes are validators. 
+
+The algorithm is round based, each round is deciding about one block.
+
+The algorithm is a BFT (Byzantine Fault Tolerance) algorithm, so it has the BFT properties. 
+
+## Overview 
+This section gives a quick overview to see how the algorithm works.
+
+Each round starts with determining which node is the proposer, because the proposer changes every round. Every node has 
+to choose the same node as proposer for the algorithm to work correctly. After setting the roles, the decision-making 
+can start. 
+
+<!-- TODO: Insert image of sequence diagram of 4 nodes -->(Diagram coming soon)
+
+As pictured above the proposer starts with building the block from the transactions in its transaction pool. 
+The proposer sends the built block to all the validators taking part in the consensus. 
+
+Each validator validates the block on its own. If a validator confirms the block, it creates a signature with its 
+private key and the block and sends this signature back to the proposer. 
+
+The proposer validates the received signatures and checks if at least 66% of the validators responded positively. If 
+that's confirmed the proposer signs the block, too, and sends all the signatures to the validators to confirm the block 
+can be added to the blockchain. 
+
+The validators validate all signatures. If all are valid they add the block to the blockchain and the database.
+The next round can start. 
+
+## Validator round
+![Validator round flow](../diagrams/round_flow_validator.drawio.png)<br>
+New round: Before a new round can begin, certain prerequisites must be met. In this phase, these preconditions are 
+checked and fulfilled if possible. 
+Firstly, there have to be enough connections for consensus to be reached at all. 
+From the BFT properties, the network must consist of at least 3f + 1 nodes (where f is the number of tolerable faulty 
+nodes). The minimum number of nodes min_N is min_N = 3f + 1. Since each node should be connected to every other node, 
+each node must have at least min_N – 1 connections for consensus to start. So, the minimum number of required 
+connections depends on the number of tolerable faulty nodes (f). 
+As long as not all prerequisites are fulfilled, the node remains in this state.
+
+Set Proposer: When the network is ready for a new round, the first step is to set a proposer. It must be ensured that 
+all nodes select the same proposer. This can be done in several different ways. \\
+Wait for block: When a proposer is found, a validator starts waiting to receive a block from the proposer. So, it 
+listens for a maximum time to the proposer to get a block. If the proposer does not send a block within the given time, 
+there is a timeout. Otherwise, it is possible to proceed to the next step. 
+Validate Block: When a block is received from the proposer, it can and must be validated. Each node is supposed to 
+give its approval to the block in order to make a decentralized decision, so each node must also check if it agrees 
+with the block. Therefore, validation in each node is inevitable.
+For this, the received block is validated for syntax and semantics. If the validator approves the block, it proceeds to 
+the next step. If the validator does not find the block to be valid, it proceeds to the round change phase. 
+
+Sign block: For a valid block each validator creates a signature with its key and the proposed block. After creation 
+the validator sends the signature back to the proposer. Therefore, sending a signature equals agreement to the block. 
+
+Wait for signatures: After sending its own signature, the validator waits for the proposer to respond with the bundled 
+signatures of the other validators. 
+
+Validate signatures: When the validator received the signatures it validates them. One invalid signature is enough to 
+change the round, because the node must assume that the proposer has been corrupted otherwise it would not send an 
+invalid signature. If all signatures are valid, the validator will proceed.
+
+Persist block: The round was successful, and the validator writes the block to the blockchain.
+
+Parse block: When the block is in the blockchain, the block is also parsed to the database to grant a faster 
+possibility so access the data. If the parsing succeeded, the validator starts a new round. 
+
+Round change: The node registers that the round was not successful and logs the reason. It also increments the counter 
+for unsuccessful round in a row, then starts a new round.
+
+
+## Proposer round
+![Proposer round flow](../diagrams/round_flow_proposer.drawio.png) <br>
+New round: (It’s the same as for the validator, if you’ve read that you can skip this phase here.) Before a new round 
+can begin, certain prerequisites must be met. In this phase, these preconditions are checked and fulfilled if possible. 
+Firstly, there have to be enough connections for consensus to be reached at all. 
+From the BFT properties, the network must consist of at least 3f + 1 nodes (where f is the number of tolerable faulty 
+nodes). The minimum number of nodes min_N is min_N = 3f + 1. Since each node should be connected to every other node, 
+each node must have at least min_N – 1 connections for consensus to start. So, the minimum number of required 
+connections depends on the number of tolerable faulty nodes (f). 
+As long as not all prerequisites are fulfilled, the node remains in this state.
+
+Set Proposer: (It’s the same as for the validator, if you’ve read that you can skip this phase here.)
+ When the network is ready for a new round, the first step is to set a proposer. It must be ensured that all nodes 
+ select the same proposer. This can be done in several ways. 
+ 
+Build block: The proposer builds the block from the transactions in its transaction pool and sends it to the validators.
+
+Wait for signatures: After sending the block, the proposer starts a timer. Within this time, it listens on the 
+validators to answer with their signature to agree to the block. 
+
+Validate signatures: When the timer stopped, the proposer checks if there are enough valid responds from the 
+validators. “Enough” means at least 66% (2/3) of the validators must agree (i.e., send a valid signature) 
+Send signatures: When the proposer received enough valid signatures, it bundles them and sends the bundle to the 
+validators which agreed to the block. 
+
+Persist block: (It’s the same as for the validator, if you’ve read that you can skip this phase here.) The round was 
+successful, and the validator writes the block to the blockchain.
+
+Parse block: (It’s the same as for the validator, if you’ve read that you can skip this phase here.) When the block is 
+in the blockchain, the block is also parsed to the database to grant a faster possibility so access the data. If the 
+parsing succeeded, the validator starts a new round. 
+
+Round change: (It’s the same as for the validator, if you’ve read that you can skip this phase here.) The node 
+registers that the round was not successful and logs the reason. It also increments the counter for unsuccessful round 
+in a row, then starts a new round.
