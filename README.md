@@ -21,4 +21,4 @@ the next one. Use this [walk through](how%20to/getting_started.md) to setup a ne
 
 ## Working with the code
 
-Check out the (trustchain-node)[https://github.com/trustcerts/trustchain-node] repository to interact with the source code.
+Check out the [trustchain-node](https://github.com/trustcerts/trustchain-node) repository to interact with the source code.
