@@ -2,41 +2,23 @@
 
 ## Installation
 
-### OS
-The software is running inside docker containers so each system that is able to run docker should be fine.
+### System requirement
+The software is running inside docker containers so each operating system that is able to run docker should be fine.
+
+Each node requires about 2 GB RAM and 2 CPUs. More detailed values will follow in the future. A dedicated machine is not required, but since there are multiple timeouts implemented in the algorithms, a machine will low performance will not be able to participate in e.g. the consensus.
 
 ### Docker and Docker-Compose
-A node is a construct of microservices that are packed up in containers so docker has to be installed:
-```shell script
-curl -fsSL https://get.docker.com -o get-docker.sh
-sh get-docker.sh
-rm get-docker.sh
-```
-
-To manage the services docker-compose is used, so install as well:
-```shell script
-curl -L "https://github.com/docker/compose/releases/download/1.26.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-chmod +x /usr/local/bin/docker-compose
-```
-
-### Accessing images
-To get the images the system need access to the registry:
-```shell script
-docker login registry.gitlab.com -u ${USER} -p ${PASSWORD}
-```
-
-The credentials have to be set before or replaced in the command.
+A node is a construct of microservices that are packed up in containers so docker and docker compose have to be installed.
 
 ### Adding a reverse proxy (optional)
-You can add a reverse proxy if you like. The reverse proxy will handle any incoming requests and route them to the 
-correct docker container. It can cache data and reduce the load on the services.
- 
+You can add a reverse proxy if you prefer to address your node by https with a domain. The reverse proxy will handle any incoming requests and route them to the correct docker container.
 <!-- TODO: insert image how the proxy works -->
 
-There are two different possibilities to expose the services: by hostname or by port. 
+There are two different possibilities to expose the services: by hostname or by port. Each node of the network can decide witch way it prefers. Changing the method is possible during production mode.
 
 #### Expose by port
-We don't recommend using the port method in production mode since the traffic will be unencrypted. 
+We do not recommend to run a node by port in production mode without tls. Right now most of the traffic is only signed with public keys, but it is not encrypted.
+
 <!-- TODO: How do you do this?-->
 
 #### Expose by hostname
@@ -45,28 +27,29 @@ Make sure to open Port 80 and 443 so the reverse proxy can redirect incoming tra
 reverse proxy is required.
 
 Let's encrypt will also make sure that the traffic over HTTP ans WS is encrypted. To set up 
-the proxy git has to be installed. Then you can clone the repo and start the proxy:
-```shell script
-git clone https://github.com/evertramos/docker-compose-letsencrypt-nginx-proxy-companion.git proxy
-cd proxy && cp .env.sample .env && ./start.sh && cd ..
-```
+the proxy git has to be installed. We recommend to use this [project](https://github.com/evertramos/nginx-proxy-automation) with the network called proxy.
 
 <!-- TODO: how is this done? -->
 By using the hostname method you have to configure your DNS. You can either route by a wildcard or add every hostname
 manually. No service is listening on the fully qualified domain name so only `*.example.com` is required. If you can not
 use wildcard, you have to define these routes:
-- api service: to interact with the node (default _api._)
-- node service: only required if you run a validator (default _node._)
-- prometheus service: only required when you want to expose your Prometheus to the public (default _prometheus._)
-- loki service: only required when you want to expose your loki to the public (default _loki._)
-- grafana service: only required if you want to monitor your node directly on the machine with public access (default: _grafana_)
+| Service | Description | Default |
+| :--- | ----------- | ---------- |
+| api | to interact with the node | _api_ |
+| node | only required if you run a validator | _node_ |
+| prometheus | only required when you want to expose your prometheus instance to the public | _prometheus_ |
+| loki | only required when you want to expose your loki to the public | _loki_ |
+| grafana | only required if you want to monitor your node directly on the machine with public access | _grafana_ |
 
-Nodes in system do not have to choose the same names for the services. Each node will tell the other node how it can be reached.
+Nodes in one network do not have to choose the same names for the services. Each node will tell the other nodes how it can be reached.
 
 
 
 <!-- ----------------------CONFIGURATION CHAPTER----------------------  -->
 ## Configuration
+
+### Config repository
+The (trustchain-config)[https://github.com/trustcerts/trustchain-config] includes all required files to start a node. We recommend to clone the repository and and configure your node/s in the `config` folder. The `config-example` folder includes some examples for running the different types of nodes.
 
 ### Configuration of the .env file 
 The .env file includes all variables that are required to run the node. An example .env file can be found in the
@@ -76,17 +59,18 @@ can be securely mounted into the containers.
 
 Some variables inform about including a yaml file. These files have to be included in the docker-compose call that is defined in the bash script.
 
+<!-- TODO add a column with the default value that is defined in the docker compose files -->
 | Variable | Description |
 | :--- | ----------- |
-| COMPOSE_PROJECT_NAME      | give your containers a better prefix instead of the folder where you are right now       |
+| COMPOSE_PROJECT_NAME      | give your containers a better prefix instead of the folder where you are right now. Be careful since a project name has to be unique so a node will not be overwritten.       |
 | NODE_TYPE   | there are three different types of nodes in the system:<br /><br />  **validator**: is able to be part in the consensus algorithm to generate blocks. Can generate or revoke certificates for gateways or observers. Running a validator means you have to expose your network service to the public so other nodes can establish a connection with it. <br /><br />**gateway**: is able to generate or revoke certificates for clients and will send new transactions from clients to the validators. <br /><br />**observer**: will return hash signatures and certificates. Not able to write to the chain. |
 | RESTART      | Choose the docker restart policy. See Docker [restart policy](https://docs.docker.com/config/containers/start-containers-automatically/#use-a-restart-policy)       |
 | IDENTIFIER      | The unique identifier of a node in the network. Nodes with the same identifier will not be able to establish a connection. It's included in the signed certificate for your keypair so pick a name everyone can understand.       |
-| IMAGE_TAG      | Image tag that should be used for all containers. master is the current one to use.|
+| IMAGE_TAG      | Image tag that should be used for all containers. latest is the current one to use.|
 | DOMAIN      | Qualified domain name of the node. (Services will be attached with a port or a subdomain to be accessible. You can use an IP adress and expose the services by port, but then the traffic will not be secured with TLS.)       |
 | NODE_SECRET      | Secret to protect admin endpoints of the node. It will be loaded when the node starts, so it can be changed in the future. This code is required when you want to communicate with endpoints that are exlusive for administration.       |
 | LOG_LEVEL | Defines the log level in the docker log, default value is info. debug should be used with caution since it produces a lot of data. |
-| VALIDATOR | Full qualified domain name of the node that is used for the first connection to the network, e.g. `node.validator.example.com` where `node.` is the hostname of the network service and `validator.example.com` the domain of the other node. |
+| DID_NETWORK | the subnamespace of the did trust method for this network like `tc:dev` with will resolve all dids beginning with `did:trust:tc:dev` |
 | HTTP_PORT | External port where the http service is exposed. <br /> Include `http/docker-compose.port.yml` |
 | HTTP_HOSTNAME | External hostname where the http service is exposed. <br />Include `http/docker-compose.port.yml` |
 | DATABASE_PORT | External port where the database service is exposed. <br /> Include `database/docker-compose.port.yml` |
@@ -104,7 +88,6 @@ Include `validator/docker-compose.yml`
 | Variable | Description |
 | :--- | ----------- |
 | VALIDATOR_MIN | Amount of validators that are required to run the consensus. (Minimum is 2 so there is one proposer and one validator.) |
-| OWN_PEER | the endpoint of the network service of the validator. depends on the type how the service is exposed: e.g. node.validator. |
 | NETWORK_PORT | External port where the network service is exposed.<br />Include `network/docker-compose.port.yml` |
 | NETWORK_HOSTNAME | External hostname where the network service is exposed.<br /> Include `network/docker-compose.port.yml` |
 
@@ -197,7 +180,7 @@ The minimum setup for a gateway requires 3 yml files:
 - `http/docker-compose.proxy.yml`: exposing the api of the node by hostname
 - `gateway/docker-compose.yml`: configuration of the services to run as an gateway
 
-In the  [configuration of the env file](getting_started.md#configuration-of-the-env-file)  each variable explains which yml file has to be appended. The order of the yml files are
+In the  [configuration of the env file](getting_started.md#configuration-of-the-env-file) each variable explains which yml file has to be appended. The order of the yml files are
 important because old values will be overwritten.
 
 You can make the shell script executable or call it with `bash` in the next steps.
@@ -339,26 +322,7 @@ bash node.sh up -d
 On the first run docker-compose will also create the required networks and the docker volumes for persisted data.
 
 #### Validate startup
-<!-- TODO: define a better way to check if node is ready
-
-To validate that all services are running you can check the logs of the running containers. Depending on the system's
-resources the startup can take some seconds.
-
-```shell script
-bash node.sh logs -f network
-```
-The last line should look similar to this one:
-```
-network_1     | 2020-11-04 09:38:19.452  (P2PService) key isn't signed yet
-```
-
-It informs about a missing signed key that will be available in the future to connect to the network.
-
-All other services (`http`, `parse`, `persist`, `wallet`) should generate a log ending like this:
-```
-http_1        | 2020-11-04 09:38:20.960  (undefined) Nest application successfully started
-```
- -->
+A get request to the http endpoint like `curl api.example.com` with a 200 http code response will tell you if your node is ready. Since the http service is the last service that will initialized it can take some seconds. Using the proxy will increase the start procedure since let's encrypt has to generate the certificates first.
 
 #### Invitations
 A member of the second layer needs an invitation from the first layer. 
@@ -371,15 +335,17 @@ An invitation token can be generated by calling the http endpoint of a validator
 ```shell script
 curl -X POST "https://api.validator1.example.com/invite" \
 -H "accept: */*" -H "Authorization: Bearer ${NODE_TOKEN}" -H "Content-Type: application/json" \
--d "{\"identifier\":\"${IDENTIFIER}\",\"secret\":\"${SECRET}\",\"readOnly\":false,\"force\":false}"
+-d "{\"id\":\"${id}\",\"secret\":\"${SECRET}\",\"name\":\"Gateway-Trust\",\"role\":\"gateway\",\"force\":false}"
 ```
 The endpoint is protected by the node secret so only the admin of a node can create or delete invite tokens for the node.
 The body has to be json formatted.
-- identifier: identifier of the new member. This identifier should not contain personal information to avoid conflicts with the GDPR.
-- secret: it's possible to define a secret that is stored in the invitation object. If nothing is passed the node will generate one.
-- readOnly: if set true the invitation code can only be used to create a observer certificate that can connect with the blockchain, but not send transactions to the validators.
-- force: normally it's not possible to create an invitation for an identifier that is already registered on the blockchain. If set to true this rule will be ignored.
-
+| Key | Description | Required |
+| --- | ----------- | :--------: |
+| id | id of the new member's did. If not passed the validator will generate a the id | |
+| secret | it's possible to define a secret that is stored in the invitation object. If nothing is passed the node will generate one. | |
+| name | a human readable name that will be stored only on this node, not inside the blockchain. The validator will add a service endpoint to the new did that will response with the name | x |
+| role | the privileges that a did should have. A validator can generate gateways or observers | x |
+| force | if set to true a new secret can be set for an existing did | |
 ##### Re-Invite a user
 
 A member of the second or third layer can lose access to the private key connected with his identity.
@@ -389,16 +355,17 @@ when the the key got registered on the blockchain. It cannot be used for new sig
 valid until they are revoked by the new keypair.
 
 
-##### Redeem invitation token
+##### Receive invitation token
 The invitation token has to be passed to the http service:
 
 ```shell script
 curl -X POST "https://api.gateway1.example.com/init" \
 -H "accept: */*" -H "Authorization: Bearer ${NODE_SECRET}" -H "Content-Type: application/json" \
--d "{\"secret\":\"${INVITE}\",\"url\":\"${HTTP_VALIDATOR_URL}\"}"
+-d "{\"id\":${ID},\"secret\":\"${INVITE}\",\"url\":\"${HTTP_VALIDATOR_URL}\"}"
 ```
-- the node secret protects the endpoint
-- the generated invite code has to be send in the body (the identifier is configured in the .env file)
+- the `id` of the did from the invite step
+- the `node secret` protects the endpoint and that was set in the .env file
+- the generated `invite` code has to be send in the body
 - `url` needs the address of the node which generated the invite token
 
 The node will receive its certificate including its signed key and connect to the network knowing it is a valid member
@@ -413,24 +380,7 @@ are the clients.
 Every client can send read requests to one of the observers to get parsed information from the blockchain,
 but only members with a signed key can send write requests to a gateway, so the transaction will be added to the blockchain.
 
-#### Requirements
-Coming soon
-<!-- **1. Correct configuration**  
 
-
-**2. Pulling the latest image**  -->
-
-
-#### Start nodes
-Coming soon
-<!--Start the node in the detached mode:
-```shell script
-bash node.sh up -d
-```
-
-On the first run docker-compose will also create the required networks and the docker volumes for persisted data.
-
-#### Validate startup --> 
 #### Invitation
 A client that wants to write to the blockchain needs a signed key. To get this key it requires an invitation token from
 a gateway. This token will be sent to the gateway http endpoint to get the own key signed.
@@ -438,19 +388,21 @@ a gateway. This token will be sent to the gateway http endpoint to get the own k
 ##### Create invitation
 To add a new member to layer three, it needs an invitation token. This token acts like a secret. A node of the layer above 
 (i.e. a gateway from layer two) can generate an invitation. 
-
-An invitation token can be generated by calling the http endpoint of a validator:
+An invitation token can be generated by calling the http endpoint of a gateway:
 ```shell script
 curl -X POST "https://api.gateway1.example.com/invite" \
 -H "accept: */*" -H "Authorization: Bearer ${NODE_TOKEN}" -H "Content-Type: application/json" \
--d "{\"identifier\":\"${IDENTIFIER}\",\"secret\":\"${SECRET}\",\"readOnly\":false,\"force\":false}"
+-d "{\"id\":\"${id}\",\"secret\":\"${SECRET}\",\"name\":\"Gateway-Trust\",\"role\":\"gateway\",\"force\":false}"
 ```
-The node secret protects the endpoint so only the admin of a node can create or delete invite tokens for the node.
+The endpoint is protected by the node secret so only the admin of a node can create or delete invite tokens for the node.
 The body has to be json formatted.
-- identifier: identifier of the new member. This identifier should not contain personal information to avoid conflicts with the GDPR.
-- secret: it's possible to define a secret that is stored in the invitation object. If nothing is passed the node will generate one.
-- readOnly: if set true the invitation code can only be used to create an observer certificate that can connect with the blockchain, but not send transactions to the validators.
-- force: normally it's not possible to create an invitation for an identifier that is already registered on the blockchain. If set to true this rule will be ignored.
+| Key | Description | Required |
+| --- | ----------- | :--------: |
+| id | id of the new member's did. If not passed the gateway will generate a the id | |
+| secret | it's possible to define a secret that is stored in the invitation object. If nothing is passed the node will generate one. | |
+| name | a human readable name that will be stored only on this node, not inside the blockchain. The gateway will add a service endpoint to the new did that will response with the name | x |
+| role | the privileges that a did should have. A gateway can generate clients | x |
+| force | if set to true a new secret can be set for an existing did | |
 
 ##### Re-Invite a user
 
@@ -461,17 +413,30 @@ when the the key got registered on the blockchain. It cannot be used for new sig
 valid until they are revoked by the new keypair.
 
 
-##### Redeem invitation token
-The invitation token has to be passed to the http service:
+##### Using the invitation token
+The invitation token has to be passed to the http service to get a valid did:
 
 ```shell script
-curl -X POST "https://api.gateway1.example.com/init" \
--H "accept: */*" -H "Authorization: Bearer ${NODE_SECRET}" -H "Content-Type: application/json" \
--d "{\"secret\":\"${INVITE}\",\"url\":\"${HTTP_GATEWAY_URL}\"}"
+curl -X 'POST' \
+  'https://api.gateway1.example.com/did/create' \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "identifier": "did:trust:tc:prod:id:D3fc9Yq1djFwQuwV4M3vTx",
+  "secret": "cryptoSecretKey",
+  "publicKey": {
+    "key_ops": [
+      "verify"
+    ],
+    "kty": [
+      "RSA"
+    ],
+    "n": "zvbICKrRLlnDWuTXRwWV9nsaiYCaLCNiNF1WmbsWFXHbT9AhyYDbIh_KLI0y5vpYTIfdneRYeNWjkldzZ_J3xZDJ9zUdxHZGXUa9j-NHInmKsYVPDhTYTbTEmDQ2COGKv26klNkyNFKS1Sap8Q7y3jyZQvV4fVd4KynpkJirpDRoDS4jeqPrZKjXQdLxmLBnBiUuD7V2phy5PFBxTsnX6wkZiWJKRRzq6CnavlgeieLgCUrsD6fmmV7B5MtJJ-fdrLxXFXXDaD9d82ZFmM24dqaMkwLvMt22xEaz27WoYftUJJIbYGNec4qTTzacEv_YcYgR8YIXQSpnviXsZ0mqPw",
+    "e": "AQAB",
+    "alg": "RS256"
+  }
+}'
 ```
-- the node secret protects the endpoint
-- the generated invite code has to be send in the body (the identifier is configured in the .env file)
-- `url` needs the address of the node which generated the invite token
-
-The node will receive its certificate including its signed key and connect to the network knowing it is a valid member
-with a singed key.
+- the `identifier` of the did document from the invite request
+- the `secret` from the invite request
+- a `publicKey` that is registered to update the did document
