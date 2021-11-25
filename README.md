@@ -1,4 +1,4 @@
-# TrustChain
+# TrustChain documentation
 
 this repository includes all information of how to set up a trustchain and how to interact with it.
 
