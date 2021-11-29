@@ -1,5 +1,5 @@
 # Peer to peer protocol
 
-## Coming soon
+## Coming soon!
 
-This page is still in progress, but will be released the following days. 
+We are sorry, but this page is still in progress, it will be released the following days. 
