@@ -1,5 +1,5 @@
 # Nodes
-##Node types
+## Node types
 * Validator
   * The validators are the nodes that are deciding on the blocks for the blockchain. They are not deciding for themselves but find a consensus together. 
   * Every validator has the blockchain and a transaction pool.  
