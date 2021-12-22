@@ -17,7 +17,7 @@ blockchain. They are not full nodes like the members from layer one and layer tw
 ## Getting started
 
 To build up a trustchain network the different layers have to be build up from 1 to 3 since the lower layer is responsible for
-the next one. Use this [walk through](how%20to/getting_started.md) to setup a network.
+the next one. Use this [walk through](how_to/getting_started.md) to setup a network.
 
 ## Working with the code
 
