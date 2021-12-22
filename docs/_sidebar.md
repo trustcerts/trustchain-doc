@@ -1,5 +1,5 @@
-- How to
-    - [Getting started](./how_to/getting_started.md)
+
+- [__Getting started__](./how_to/getting_started.md)
 
 - Concepts
   - [Architecture](./concepts/architecture.md)
