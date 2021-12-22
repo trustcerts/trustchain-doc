@@ -23,6 +23,7 @@ version of the blockchain themselves. The clients can make read and write reques
 ## Microservices
 Each node in the network consists of several microservices. The image below shows the microservices of one node. 
 ![Microservice architecture of one node](../diagrams/Node-Topologie.drawio.png)
+
 The services pictured in dark blue are the trustchain specific services, while the turquoise ones are just tools we are
 using. 
 
