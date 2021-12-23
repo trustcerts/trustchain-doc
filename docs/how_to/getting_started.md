@@ -49,7 +49,7 @@ Nodes in one network do not have to choose the same names for the services. Each
 ## Configuration
 
 ### Config repository
-The (trustchain-config)[https://github.com/trustcerts/trustchain-config] includes all required files to start a node. We recommend to clone the repository and and configure your node/s in the `config` folder. The `config-example` folder includes some examples for running the different types of nodes.
+The [trustchain-config](https://github.com/trustcerts/trustchain-config) includes all required files to start a node. We recommend to clone the repository and and configure your node/s in the `config` folder. The `config-example` folder includes some examples for running the different types of nodes.
 
 ### Configuration of the .env file 
 The .env file includes all variables that are required to run the node. An example .env file can be found in the

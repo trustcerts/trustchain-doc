@@ -14,10 +14,12 @@ input from the third layer and will send it to the members of the first layer if
 layer access to read from the blockchain. On the third layer are clients, they use the second layer to interact with the
 blockchain. They are not full nodes like the members from layer one and layer two to reduce the requirement resources.
 
+For further information see the [architecture](./concepts/architecture.md) chapter.
+
 ## Getting started
 
 To build up a trustchain network the different layers have to be build up from 1 to 3 since the lower layer is responsible for
-the next one. Use this [walk through](how%20to/getting_started.md) to setup a network.
+the next one. Use this [walk through](how_to/getting_started.md) to setup a network.
 
 ## Working with the code
 

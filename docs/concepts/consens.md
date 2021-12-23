@@ -31,7 +31,7 @@ The next round can start.
 
 ## Validator round
 ![Validator round flow](../diagrams/round_flow_validator.drawio.png)<br>
-New round: Before a new round can begin, certain prerequisites must be met. In this phase, these preconditions are 
+__New round:__ Before a new round can begin, certain prerequisites must be met. In this phase, these preconditions are 
 checked and fulfilled if possible. 
 Firstly, there have to be enough connections for consensus to be reached at all. 
 From the BFT properties, the network must consist of at least 3f + 1 nodes (where f is the number of tolerable faulty 
@@ -40,7 +40,7 @@ each node must have at least min_N – 1 connections for consensus to start. So,
 connections depends on the number of tolerable faulty nodes (f). 
 As long as not all prerequisites are fulfilled, the node remains in this state.
 
-Set Proposer: When the network is ready for a new round, the first step is to set a proposer. It must be ensured that 
+__Set Proposer:__ When the network is ready for a new round, the first step is to set a proposer. It must be ensured that 
 all nodes select the same proposer. This can be done in several different ways. \\
 Wait for block: When a proposer is found, a validator starts waiting to receive a block from the proposer. So, it 
 listens for a maximum time to the proposer to get a block. If the proposer does not send a block within the given time, 
@@ -51,28 +51,28 @@ with the block. Therefore, validation in each node is inevitable.
 For this, the received block is validated for syntax and semantics. If the validator approves the block, it proceeds to 
 the next step. If the validator does not find the block to be valid, it proceeds to the round change phase. 
 
-Sign block: For a valid block each validator creates a signature with its key and the proposed block. After creation 
+__Sign block:__ For a valid block each validator creates a signature with its key and the proposed block. After creation 
 the validator sends the signature back to the proposer. Therefore, sending a signature equals agreement to the block. 
 
-Wait for signatures: After sending its own signature, the validator waits for the proposer to respond with the bundled 
+__Wait for signatures:__ After sending its own signature, the validator waits for the proposer to respond with the bundled 
 signatures of the other validators. 
 
-Validate signatures: When the validator received the signatures it validates them. One invalid signature is enough to 
+__Validate signatures:__ When the validator received the signatures it validates them. One invalid signature is enough to 
 change the round, because the node must assume that the proposer has been corrupted otherwise it would not send an 
 invalid signature. If all signatures are valid, the validator will proceed.
 
-Persist block: The round was successful, and the validator writes the block to the blockchain.
+__Persist block:__ The round was successful, and the validator writes the block to the blockchain.
 
-Parse block: When the block is in the blockchain, the block is also parsed to the database to grant a faster 
+__Parse block:__ When the block is in the blockchain, the block is also parsed to the database to grant a faster 
 possibility so access the data. If the parsing succeeded, the validator starts a new round. 
 
-Round change: The node registers that the round was not successful and logs the reason. It also increments the counter 
+__Round change:__ The node registers that the round was not successful and logs the reason. It also increments the counter 
 for unsuccessful round in a row, then starts a new round.
 
 
 ## Proposer round
 ![Proposer round flow](../diagrams/round_flow_proposer.drawio.png) <br>
-New round: (It’s the same as for the validator, if you’ve read that you can skip this phase here.) Before a new round 
+__New round:__ (It’s the same as for the validator, if you’ve read that you can skip this phase here.) Before a new round 
 can begin, certain prerequisites must be met. In this phase, these preconditions are checked and fulfilled if possible. 
 Firstly, there have to be enough connections for consensus to be reached at all. 
 From the BFT properties, the network must consist of at least 3f + 1 nodes (where f is the number of tolerable faulty 
@@ -81,27 +81,27 @@ each node must have at least min_N – 1 connections for consensus to start. So,
 connections depends on the number of tolerable faulty nodes (f). 
 As long as not all prerequisites are fulfilled, the node remains in this state.
 
-Set Proposer: (It’s the same as for the validator, if you’ve read that you can skip this phase here.)
+__Set Proposer:__ (It’s the same as for the validator, if you’ve read that you can skip this phase here.)
  When the network is ready for a new round, the first step is to set a proposer. It must be ensured that all nodes 
  select the same proposer. This can be done in several ways. 
  
-Build block: The proposer builds the block from the transactions in its transaction pool and sends it to the validators.
+__Build block:__ The proposer builds the block from the transactions in its transaction pool and sends it to the validators.
 
-Wait for signatures: After sending the block, the proposer starts a timer. Within this time, it listens on the 
+__Wait for signatures:__ After sending the block, the proposer starts a timer. Within this time, it listens on the 
 validators to answer with their signature to agree to the block. 
 
-Validate signatures: When the timer stopped, the proposer checks if there are enough valid responds from the 
+__Validate signatures:__ When the timer stopped, the proposer checks if there are enough valid responds from the 
 validators. “Enough” means at least 66% (2/3) of the validators must agree (i.e., send a valid signature) 
 Send signatures: When the proposer received enough valid signatures, it bundles them and sends the bundle to the 
 validators which agreed to the block. 
 
-Persist block: (It’s the same as for the validator, if you’ve read that you can skip this phase here.) The round was 
+__Persist block:__ (It’s the same as for the validator, if you’ve read that you can skip this phase here.) The round was 
 successful, and the validator writes the block to the blockchain.
 
-Parse block: (It’s the same as for the validator, if you’ve read that you can skip this phase here.) When the block is 
+__Parse block:__ (It’s the same as for the validator, if you’ve read that you can skip this phase here.) When the block is 
 in the blockchain, the block is also parsed to the database to grant a faster possibility so access the data. If the 
 parsing succeeded, the validator starts a new round. 
 
-Round change: (It’s the same as for the validator, if you’ve read that you can skip this phase here.) The node 
+__Round change:__ (It’s the same as for the validator, if you’ve read that you can skip this phase here.) The node 
 registers that the round was not successful and logs the reason. It also increments the counter for unsuccessful round 
 in a row, then starts a new round.

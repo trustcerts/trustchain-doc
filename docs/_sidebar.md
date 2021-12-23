@@ -1,3 +1,4 @@
+- [__Home__](/)
 
 - [__Getting started__](./how_to/getting_started.md)
 

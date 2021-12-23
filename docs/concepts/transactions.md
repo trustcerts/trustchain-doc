@@ -1,6 +1,7 @@
 # Transactions
 ## Transaction flow
 Every blockchain transaction has the same flow. 
+
 ![Transaction flow from client to blockchain and back](../diagrams/Transaction_path.drawio.png)
 
 ## TransactionTypes
