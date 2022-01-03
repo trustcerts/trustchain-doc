@@ -49,11 +49,13 @@ Nodes in one network do not have to choose the same names for the services. Each
 ## Configuration
 
 ### Config repository
-The [trustchain-config](https://github.com/trustcerts/trustchain-config) includes all required files to start a node. We recommend to clone the repository and and configure your node/s in the `config` folder. The `config-example` folder includes some examples for running the different types of nodes.
+The [trustchain-config](https://github.com/trustcerts/trustchain-config) includes all required files to start a node. We recommend to clone the repository and create a `configs` directory (on the same level as the `config-example` directory). Configure your node/s in this `configs` folder. The `config-example` folder includes some examples for running the different types of nodes.
 
 ### Configuration of the .env file 
-The .env file includes all variables that are required to run the node. An example .env file can be found in the
-`configs` directory. Keep in mind that it includes some secrets so be 
+The .env file includes all variables that are required to run the node. 
+In the `config-example` directory there is one directory for every type of node. You can find example
+.env files for your nodes there. 
+Keep in mind that these files includes some secrets so be 
 careful where you store it! In the future trustchain nodes will be able to run in kubernetes or docker swarm so secrets
 can be securely mounted into the containers.
 
@@ -107,7 +109,9 @@ Include `docker-compose.dev.yml`
 ### Configuration of the shell script
 
 #### Shell script for validators
-After setting up the .env files the shell scripts have to be configured. The normal input for a validator looks like this:
+After setting up the .env files the shell scripts have to be configured. 
+In the config-example directory there is one directory for every type of node. You can find example .bash files for your nodes there. 
+The normal input for a validator looks like this:
 ```shell script
 #!/bin/bash
 NODE_PATH=../nodes
@@ -122,7 +126,7 @@ docker-compose \
   $@
 ```
 `NODE_PATH` is pointing to the folder of the yml files from the repository. You don't have to change it when the shell
-script is stored in the recommended `config` folder. The `ENV` is the name of the `.env` file that should follow the 
+script is stored in the recommended `configs` folder. The `ENV` is the name of the `.env` file that should follow the 
 `.$ENV.env` syntax. 
 
 The minimum setup for a validator requires 4 yml files:
@@ -363,10 +367,10 @@ curl -X POST "https://api.gateway1.example.com/init" \
 -H "accept: */*" -H "Authorization: Bearer ${NODE_SECRET}" -H "Content-Type: application/json" \
 -d "{\"id\":${ID},\"secret\":\"${INVITE}\",\"url\":\"${HTTP_VALIDATOR_URL}\"}"
 ```
-- the `id` of the did from the invite step
-- the `node secret` protects the endpoint and that was set in the .env file
-- the generated `invite` code has to be send in the body
-- `url` needs the address of the node which generated the invite token
+- the `ID` of the did from the invite step
+- the `NODE_SECRET` protects the endpoint and that was set in the .env file
+- the generated `INVITE` code has to be send in the body
+- `HTTP_VALIDATOR_URL` needs the address of the node which generated the invite token
 
 The node will receive its certificate including its signed key and connect to the network knowing it is a valid member
 with a singed key. After syncing up with the network the node is ready to interact with [layer three](getting_started.md#layer-three).

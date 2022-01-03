@@ -19,7 +19,7 @@ For further information see the [architecture](./concepts/architecture.md) chapt
 ## Getting started
 
 To build up a trustchain network the different layers have to be build up from 1 to 3 since the lower layer is responsible for
-the next one. Use this [walk through](how_to/getting_started.md) to setup a network.
+the next one. Use this [walk through](./how_to/getting_started.md) to set up a network.
 
 ## Working with the code
 
