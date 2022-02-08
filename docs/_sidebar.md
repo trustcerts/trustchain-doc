@@ -8,4 +8,5 @@
   - [Peer to peer](./concepts/peer-to-peer.md)
   - [Transactions](./concepts/transactions.md)
   - [Consensus](./concepts/consens.md)
+  - [Chain of trust](./concepts/chain-of-trust.md)
 
