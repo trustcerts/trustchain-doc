@@ -7,16 +7,10 @@ Every blockchain transaction has the same flow.
 ## TransactionTypes
 | Type | Category  | Description |
 | ----------- | ----------- | ----------- |
-| HashCreation | Done by clients | Transaction to create a claim. |
-| HashRevocation | Done by clients | Transaction to revoke a claim. |
-| SecurityLimit | Security Features | TODO |
-| SecurityRecaptcha | Security Features | TODO |
-| Did | DID | TODO |
-| SchemaCreation | VC | TODO |
-| ClaimDefinition | VC | TODO |
-| RevocationRegistryCreation | VC | TODO |
-| RevocationEntry | VC | TODO |
-| Template | Template | TODO |
+| DIDHash | Signature | Use a hash of a file or object to store information like signature, revocation status, rehashing information on the chain. Used to outsource a signature or to get a trusted timestamp. |
+| DidId | Issuer | Identity of an issuer. Includes public keys for signature validation and service endpoints for identification. |
+| DidSchema | VC | stores a JSON-LD schema. Can be used in verifiable credentials or hybrid credentials. |
+| DidTemplate | VC | A HTML template to render personal JSON data based on a schema, the result is a human readable |
 
 ## Transaction pool
 - The transaction pool is a collection of transactions that are requested to the network.
@@ -42,6 +36,7 @@ The transaction object has following properties:
 | ----------- | ----------- | ----------- | ----------- |
 |version! | number | IsNumber, IsPositive |Version number of the base transaction.|
 |Imported? | ImportedMetadata**** | Type == ImportedMetadata | If set the timestamp of the metadata is set as the created at timestamp. Required when data should be imported from another blockchain. |
+| didDocSignature | SignatureInfo | IsOptional | signature from a gateway (when the transaction was created by a client) that signed the latest version of a did document |
 
 **The TransactionBody object has following properties:
 
