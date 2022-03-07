@@ -33,6 +33,7 @@ the proxy git has to be installed. We recommend to use this [project](https://gi
 By using the hostname method you have to configure your DNS. You can either route by a wildcard or add every hostname
 manually. No service is listening on the fully qualified domain name so only `*.example.com` is required. If you can not
 use wildcard, you have to define these routes:
+
 | Service | Description | Default |
 | :--- | ----------- | ---------- |
 | api | to interact with the node | _api_ |
