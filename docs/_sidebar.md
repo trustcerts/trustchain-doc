@@ -4,6 +4,7 @@
 
 - Concepts
   - [Architecture](./concepts/architecture.md)
+  - [Project structure](./concepts/project-structure.md)
   - [Nodes](./concepts/nodes.md)
   - [Peer to peer](./concepts/peer-to-peer.md)
   - [Transactions](./concepts/transactions.md)
