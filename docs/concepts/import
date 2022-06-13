@@ -1,0 +1,15 @@
+# Import transactions
+
+in some cases it is required to import transactions with an older timestamp than current timestamp. This could be the case when merging one chain into another one.
+
+Process:
+- The client is setting the date to the wished timestamp
+- To authorize this prozess an imported transactions needs a signature from a gateway. A list of DIDs can be passed to the gateway on start where the transactions should get an imported flag.
+- The gateway adds a signature to proof the import
+- The verifier checks if there is an import field. If so it will use this timestamp to request the did document of the issuer
+
+The created field can not be overwirtten since this is
+
+
+# TODO
+evaluate if the process should be rearranged: first the client gets a valid signature to his import request and adds it into his transaction. In this situation the verifier does not to check a possible imported 
