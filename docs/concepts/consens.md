@@ -10,11 +10,7 @@ Distributed systems and distributed computing require a common understanding and
 
 One advantage of distributed ledger technology (DLT) like blockchain is the consensus algorithm. The consensus algorithm allows nodes to agree on the integrity and uniform processing of data on the blockchain, creating a common level of trust among all equal network participants.
 
-
-
-
-
-## Advanced information
+## Introduction
 There are two different roles for the nodes in the consensus - validator and proposer. There is one proposer each round, and the rest of the nodes are validators. 
 
 The algorithm is round based, each round decides on one block.
@@ -26,7 +22,7 @@ This section gives a quick overview to see how the algorithm works.
 
 Each round starts with determining which node is the proposer, because the proposer changes every round. Every node has to choose the same node as proposer for the algorithm to work correctly. After setting the roles, the decision-making can start. 
 
-<!-- TODO: Insert image of sequence diagram of 4 nodes -->(Diagram coming soon)
+![Consens round sequence](../diagrams/Konsens_sequenz.png)<br>
 
 As pictured above the proposer starts with building the block from the transactions in its transaction pool. 
 The proposer then sends the built block to all the validators taking part in the consensus. 
@@ -90,3 +86,8 @@ __Parse block:__ (It’s the same as for the validator, if you’ve read that yo
 __Round change:__ (It’s the same as for the validator, if you’ve read that you can skip this phase here.) The node registers that the round was not successful and logs the reason. It also increments the counter for unsuccessful rounds in a row, then starts a new round.
 
 ## Open Questions
+- What are the benefits and drawbacks of our consensus algorithm?
+- How to ensure that each node selects the same proposer?
+- There is no method implemented yet to remove malicious nodes from the network. What is the best strategy to do this?
+- The proposer changes every round. Is this really necessary? What are alternatives or the best strategy?
+- What's the real benefit of our consensus algorithm (in numbers)?
